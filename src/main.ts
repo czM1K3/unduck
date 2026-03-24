@@ -44,8 +44,28 @@ function noSearchDefaultPageRender() {
   });
 }
 
-const LS_DEFAULT_BANG = localStorage.getItem("default-bang") ?? "g";
-const defaultBang = bangs.find((b) => b.t === LS_DEFAULT_BANG);
+const DEFAULT_BANG = "default-bang";
+const CUSTOM_BANG_VALUE = "custom-bang";
+
+const customBangUrl = localStorage.getItem(CUSTOM_BANG_VALUE);
+const customBang = (() => {
+  if (!customBangUrl) return null;
+  const parts = customBangUrl.split(";");
+  if (parts.length !== 2) return null;
+  return {
+    t: "custom",
+    u: parts[1],
+    d: parts[0],
+    s: "Custom",
+    c: "Custom",
+    sc: "Custom",
+    r: 0,
+  };
+})();
+const allBangs = customBang ? [...bangs, customBang] : bangs;
+
+const LS_DEFAULT_BANG = localStorage.getItem(DEFAULT_BANG) ?? "g";
+const defaultBang = allBangs.find((b) => b.t === LS_DEFAULT_BANG);
 
 function getBangredirectUrl() {
   const url = new URL(window.location.href);
@@ -58,7 +78,7 @@ function getBangredirectUrl() {
   const match = query.match(/!(\S+)/i);
 
   const bangCandidate = match?.[1]?.toLowerCase();
-  const selectedBang = bangs.find((b) => b.t === bangCandidate) ?? defaultBang;
+  const selectedBang = allBangs.find((b) => b.t === bangCandidate) ?? defaultBang;
 
   // Remove the first bang from the query
   const cleanQuery = query.replace(/!\S+\s*/i, "").trim();
