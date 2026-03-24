@@ -12,12 +12,21 @@ function noSearchDefaultPageRender() {
           <input 
             type="text" 
             class="url-input"
-            value="https://unduck-567.pages.dev?q=%s"
+            value="${window.location.origin}?q=%s"
             readonly 
           />
           <button class="copy-button">
             <img src="/clipboard.svg" alt="Copy" />
           </button>
+        </div>
+
+        <div style="margin-top: 40px; text-align: center;">
+          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">Custom Default Bang</h2>
+          <div style="display: flex; flex-direction: column; gap: 8px; align-items: stretch;">
+            <input type="text" class="custom-domain-input url-input" placeholder="Domain (e.g. google.com)" value="${customBang?.d ?? ""}" />
+            <input type="text" class="custom-url-input url-input" placeholder="Search URL (e.g. https://google.com/search?q={{{s}}})" value="${customBang?.u ?? ""}" />
+            <button class="save-button" style="padding: 8px; background: #444; color: white; border-radius: 4px; cursor: pointer; font-weight: 600;">Save Custom Bang</button>
+          </div>
         </div>
       </div>
       <footer class="footer">
@@ -41,6 +50,24 @@ function noSearchDefaultPageRender() {
     setTimeout(() => {
       copyIcon.src = "/clipboard.svg";
     }, 2000);
+  });
+
+  const saveButton = app.querySelector<HTMLButtonElement>(".save-button")!;
+  const customDomainInput = app.querySelector<HTMLInputElement>(".custom-domain-input")!;
+  const customUrlInput = app.querySelector<HTMLInputElement>(".custom-url-input")!;
+
+  saveButton.addEventListener("click", () => {
+    const domain = customDomainInput.value.trim();
+    const url = customUrlInput.value.trim();
+    if (domain && url) {
+      localStorage.setItem(CUSTOM_BANG_VALUE, `${domain};${url}`);
+      localStorage.setItem(DEFAULT_BANG, "custom");
+      window.location.reload();
+    } else {
+      localStorage.removeItem(CUSTOM_BANG_VALUE);
+      localStorage.removeItem(DEFAULT_BANG);
+      window.location.reload();
+    }
   });
 }
 
